@@ -12,11 +12,6 @@ const options = {
 	method: 'CONNECT',
 };
 
-const login = async () => {
-	const token = await auther.getPersonalAccesToken();
-	console.log(token);
-};
-
 const alertCheck = async () => {
 	const boolean = await alert.getAlert();
 	console.log(boolean);
@@ -25,5 +20,29 @@ const alertCheck = async () => {
 console.log(
 	chalk.yellow(figlet.textSync('CoronApp', { horizontalLayout: 'full' }))
 );
-alertCheck();
-//login();
+
+const run = async () => {
+	try {
+		const token = await auther.getPersonalAccesToken();
+		console.log(chalk.green('logged in!'));
+		console.log(token);
+	} catch (err) {
+		if (err) {
+			switch (err.status) {
+				case 401:
+					console.log(
+						chalk.red(
+							"Couldn't log you in. Please provide correct credentials/token."
+						)
+					);
+					break;
+				case 422:
+					console.log(chalk.red(''));
+					break;
+				default:
+					console.log(chalk.red(err));
+			}
+		}
+	}
+};
+run();
