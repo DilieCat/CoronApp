@@ -14,7 +14,7 @@ module.exports = {
 			username: credentials.username,
 			password: credentials.password,
 		};
-		console.log(auth);
+		//console.log(auth);
 		let dataEncoded = JSON.stringify(auth);
 		console.log(dataEncoded);
 
@@ -35,13 +35,13 @@ module.exports = {
 
 			res.on('data', (d) => {
 				//console.log(d);
-				const token = d.toString('utf8');
-				var n = token.includes(token);
-				//console.log(n);
+				incommingToken = d.toString('utf8');
+				console.log(incommingToken);
+				var n = incommingToken.includes('Bearer');
+				console.log(n);
 				if (n == true) {
-					//console.log(token);
 					status.stop();
-					return token;
+					return incommingToken;
 				}
 			});
 		});

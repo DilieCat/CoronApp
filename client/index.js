@@ -4,17 +4,11 @@ const inquirer = require('./lib/inquirer');
 const https = require('https');
 const auther = require('./lib/auther');
 const alert = require('./lib/alert');
-var goToGGD = false;
 
 const options = {
 	port: 3000,
 	host: 'localhost',
 	method: 'CONNECT',
-};
-
-const alertCheck = async () => {
-	const boolean = await alert.getAlert();
-	console.log(boolean);
 };
 
 console.log(
@@ -23,9 +17,11 @@ console.log(
 
 const run = async () => {
 	try {
-		const token = await auther.getPersonalAccesToken();
+		var token = await auther.getPersonalAccesToken();
 		console.log(chalk.green('logged in!'));
-		console.log(token);
+		//console.log(token);
+		var ggdVisit = await alert.getAlert(1, token);
+		//console.log(ggdVisit);
 	} catch (err) {
 		if (err) {
 			switch (err.status) {

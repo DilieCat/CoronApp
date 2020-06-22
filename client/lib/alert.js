@@ -1,4 +1,5 @@
 const http = require('http');
+const token = require('../index');
 
 module.exports = {
 	getAlert: async () => {
@@ -12,6 +13,7 @@ module.exports = {
 			headers: {
 				'Content-Length': Buffer.byteLength(dataEncoded),
 				'Content-Type': 'application/json',
+				'Authorization:': token,
 			},
 		};
 
@@ -20,7 +22,7 @@ module.exports = {
 			//console.log('headers:', res.headers);
 
 			res.on('data', (d) => {
-				console.log('heb ik waarschijnlijk corona?', JSON.parse(d));
+				console.log('client connected', this.getAlert ? 'true' : 'false');
 			});
 		});
 
