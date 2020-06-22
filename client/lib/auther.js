@@ -37,7 +37,7 @@ module.exports = {
 				//console.log(d);
 				const token = d.toString('utf8');
 				var n = token.includes(token);
-				console.log(n);
+				//console.log(n);
 				if (n == true) {
 					//console.log(token);
 					status.stop();
