@@ -1,7 +1,7 @@
 const CLI = require('clui');
 const Spinner = CLI.Spinner;
 const inquirer = require('./inquirer');
-const https = require('https');
+const http = require('http');
 
 module.exports = {
 	getPersonalAccesToken: async () => {
@@ -21,7 +21,7 @@ module.exports = {
 		let options = {
 			host: 'localhost',
 			port: 3000,
-			path: '/main/user/login',
+			path: '/auth/login',
 			method: 'POST',
 			headers: {
 				'Content-Length': Buffer.byteLength(dataEncoded),
@@ -29,12 +29,20 @@ module.exports = {
 			},
 		};
 
-		const req = https.request(options, (res) => {
-			console.log('statusCode:', res.statusCode);
-			console.log('headers:', res.headers);
+		const req = http.request(options, (res) => {
+			//console.log('statusCode:', res.statusCode);
+			//console.log('headers:', res.headers);
 
 			res.on('data', (d) => {
-				process.stdout.write(d);
+				//console.log(d);
+				const token = d.toString('utf8');
+				var n = token.includes(token);
+				//console.log(n);
+				if (n == true) {
+					//console.log(token);
+					status.stop();
+					return token;
+				}
 			});
 		});
 
