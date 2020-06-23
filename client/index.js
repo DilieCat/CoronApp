@@ -4,6 +4,7 @@ const inquirer = require('./lib/inquirer');
 const https = require('https');
 const auther = require('./lib/auther');
 const alert = require('./lib/alert');
+const axios = require('axios');
 
 const options = {
 	port: 3000,
@@ -17,9 +18,11 @@ console.log(
 
 const run = async () => {
 	try {
+		console.log('test token' + (await getPersonalAccesToken()));
 		var token = await auther.getPersonalAccesToken();
+
 		console.log(chalk.green('logged in!'));
-		//console.log(token);
+		console.log(token);
 		var ggdVisit = await alert.getAlert(1, token);
 		//console.log(ggdVisit);
 	} catch (err) {
@@ -42,3 +45,27 @@ const run = async () => {
 	}
 };
 run();
+
+getPersonalAccesToken() {
+	const credentials = await inquirer.askCoronAppCredentials();
+	const status = new Spinner('Authenticating you, please wait...');
+
+	status.start();
+
+	let auth = {
+		username: credentials.username,
+		password: credentials.password
+	};
+
+	//console.log(auth);
+	axios.post('localhost:3000/auth/login', {
+		auth
+	  })
+	  .then((res) => {
+		console.log(`statusCode: ${res.statusCode}`)
+		console.log(res)
+	  })
+	  .catch((error) => {
+		console.error(error)
+	  });
+}
