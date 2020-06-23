@@ -65,9 +65,10 @@ router.post('/user/contact/', async (req, res) => {
 	for (let index = 0; index < contacts.length; index++) {
 		if (contacts[index].userId == mainUserId) {
 			contacts[index].meeted.push(meetedUserId);
+			res.status(200).json();
+			console.log(contacts);
 		}
 	}
-	res.status(200).json();
 });
 
 //Get user alert
@@ -83,16 +84,5 @@ router.get('/user/alert', async (req, res) => {
 });
 
 //User login
-
-router.post('/user/contact/', async (req, res) => {
-	const meetedUserId = req.body.meetedUserId;
-
-	for (let index = 0; index < contacts.length; index++) {
-		if (contacts[index].userId == mainUserId) {
-			contacts[index].meeted.push(meetedUserId);
-		}
-	}
-	res.status(200).json();
-});
 
 module.exports = router;
