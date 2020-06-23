@@ -15,18 +15,14 @@ let alerts = [1];
 
 //Check if user is authenticated
 router.all('*', function (req, res, next) {
-	console.log('tokenvalidator aangeroepen');
 	assert(
 		typeof req.headers['x-access-token'] == 'string',
 		'token is not a string!'
 	);
 
 	token = req.header('X-Access-Token') || '';
-	console.log('token = ' + token);
 	var decoded = jwt.verify(token, 'secret');
-	console.log(decoded);
 	mainUserId = decoded.data;
-	console.log(mainUserId);
 	next();
 });
 
