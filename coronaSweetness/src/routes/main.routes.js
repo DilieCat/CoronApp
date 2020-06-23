@@ -59,9 +59,11 @@ router.get('/contacts', async (req, res) => {
 router.post('/user/contact/', async (req, res) => {
 	const userId = req.body.userId;
 	const meetedUserId = req.body.meetedUserId;
+	console.log(meetedUserId);
+	console.log('user ' + mainUserId + ' had contact with ' + meetedUserId);
 
 	for (let index = 0; index < contacts.length; index++) {
-		if (contacts[index].userId == userId) {
+		if (contacts[index].userId == mainUserId) {
 			contacts[index].meeted.push(meetedUserId);
 		}
 	}
