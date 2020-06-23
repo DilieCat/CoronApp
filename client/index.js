@@ -1,30 +1,71 @@
+const CLI = require('clui');
+const Spinner = CLI.Spinner;
 const chalk = require('chalk');
 const figlet = require('figlet');
-const inquirer = require('./lib/inquirer');
-const https = require('https');
-const auther = require('./lib/auther');
-const alert = require('./lib/alert');
+var inquirer = require('inquirer');
 const axios = require('axios');
-
-const options = {
-	port: 3000,
-	host: 'localhost',
-	method: 'CONNECT',
-};
+const alert = require('./lib/alert');
 
 console.log(
 	chalk.yellow(figlet.textSync('CoronApp', { horizontalLayout: 'full' }))
 );
 
+function askCoronAppCredentials() {
+	const questions = [
+		{
+			name: 'username',
+			type: 'input',
+			message: 'Enter your CoronApp username:',
+			validate: function (value) {
+				if (value.length) {
+					return true;
+				} else {
+					return 'Please enter your username or e-mail address.';
+				}
+			},
+		},
+		{
+			name: 'password',
+			type: 'password',
+			message: 'Enter your password:',
+			validate: function (value) {
+				if (value.length) {
+					return true;
+				} else {
+					return 'Please enter your password.';
+				}
+			},
+		},
+	];
+	return inquirer.prompt(questions);
+}
+
 const run = async () => {
 	try {
-		console.log('test token' + (await auther.getPersonalAccesToken()));
-		var token = await auther.getPersonalAccesToken();
+		const credentials = await askCoronAppCredentials();
+		console.log(credentials);
 
+		const token = await axios
+			.post('http://localhost:3000/auth/login', {
+				username: credentials.username,
+				password: credentials.password,
+			})
+			.then((res) => {
+				return res.data;
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+
+		//console.log(token);
 		console.log(chalk.green('logged in!'));
-		console.log(token);
-		var ggdVisit = await alert.getAlert(1, token);
-		//console.log(ggdVisit);
+		var ggdVisit = await axios({
+			method: 'GET',
+			url: 'http://localhost:3000/main/user/alert',
+
+			headers: { 'X-Access-Token': token },
+		});
+		console.log('Do i have to visit the GGD? ' + ggdVisit.data);
 	} catch (err) {
 		if (err) {
 			switch (err.status) {

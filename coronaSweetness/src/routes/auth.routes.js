@@ -29,7 +29,7 @@ router.post('/login/', async (req, res) => {
 	}
 	console.log(username + ' logged in');
 	res.status(200);
-	res.send('Bearer ' + token);
+	res.send(token);
 });
 
 module.exports = router;
