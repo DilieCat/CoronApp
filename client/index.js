@@ -18,7 +18,7 @@ console.log(
 
 const run = async () => {
 	try {
-		console.log('test token' + (await getPersonalAccesToken()));
+		console.log('test token' + (await auther.getPersonalAccesToken()));
 		var token = await auther.getPersonalAccesToken();
 
 		console.log(chalk.green('logged in!'));
@@ -45,27 +45,3 @@ const run = async () => {
 	}
 };
 run();
-
-getPersonalAccesToken() {
-	const credentials = await inquirer.askCoronAppCredentials();
-	const status = new Spinner('Authenticating you, please wait...');
-
-	status.start();
-
-	let auth = {
-		username: credentials.username,
-		password: credentials.password
-	};
-
-	//console.log(auth);
-	axios.post('localhost:3000/auth/login', {
-		auth
-	  })
-	  .then((res) => {
-		console.log(`statusCode: ${res.statusCode}`)
-		console.log(res)
-	  })
-	  .catch((error) => {
-		console.error(error)
-	  });
-}
