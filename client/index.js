@@ -5,6 +5,8 @@ const figlet = require('figlet');
 var inquirer = require('inquirer');
 const axios = require('axios');
 const alert = require('./lib/alert');
+const request = require('request')
+const fs = require('fs');
 
 console.log(
 	chalk.yellow(figlet.textSync('CoronApp', { horizontalLayout: 'full' }))
@@ -59,13 +61,26 @@ function askContact() {
 const run = async () => {
 	try {
 		const credentials = await askCoronAppCredentials();
-		console.log(credentials);
 
-		const token = await axios
-			.post('http://localhost:3000/auth/login', {
+		const token = await request
+			.post({ca: fs.readFileSync('cert/ca-crt.pem'), url: 'https://localhost:3000/auth/login', json: {
 				username: credentials.username,
-				password: credentials.password,
+				password: credentials.password
+			}}, (error, res, body) => {
+				if(error){
+					console.error(error)
+					console.log(
+						chalk.red(
+							"Couldn't log you in. Please provide correct credentials/token."
+						))
+					return
+				} else {
+					console.log(chalk.green('logged in!'));
+					//return body;
+				}
 			})
+			
+			/*
 			.then((res) => {
 				return res.data;
 				console.log(chalk.green('logged in!'));
@@ -77,12 +92,12 @@ const run = async () => {
 						"Couldn't log you in. Please provide correct credentials/token."
 					)
 				);
-			});
+			});*/
 
 		//console.log(token);
 		var ggdVisit = await axios({
 			method: 'GET',
-			url: 'http://localhost:3000/main/user/alert',
+			url: 'https://localhost:3000/main/user/alert',
 
 			headers: { 'X-Access-Token': token },
 		});
