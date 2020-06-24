@@ -75,8 +75,16 @@ const run = async () => {
 						))
 					return
 				} else {
-					console.log(chalk.green('logged in!'));
-					return body;
+					if(res.statusCode == 200){
+						console.log(body)
+						console.log(chalk.green('logged in!'));
+						return body;
+					} else {
+						console.log(
+							chalk.red(
+								"Couldn't log you in. Please provide correct credentials/token."
+							))
+					}
 				}
 			})
 			

@@ -34,12 +34,13 @@ router.post('/researcher/alert', async (req, res) => {
 		res.status(412).json('Empty userId');
 	}
 	if (!alerts.includes(userId)) {
-		alerts.push(userId);
+        alerts.push(userId);
+        res.status(200).json('Addes user ' + userId);
 	} else {
 		res.status(412).json('User is already alerted');
 	}
 
-	res.status(200).json('Addes user ' + userId);
+
 });
 
 /*

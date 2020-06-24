@@ -12,6 +12,7 @@ router.post('/login/', async (req, res) => {
 	const username = req.body.username;
 	const password = req.body.password;
 	let token;
+	let found;
 
 	for (let index = 0; index < accounts.length; index++) {
 		if (
@@ -27,12 +28,22 @@ router.post('/login/', async (req, res) => {
 			);
 
 			console.log(username + ' logged in');
-			res.status(200);
-			res.send(token);
-		} else {
-			res.status(401);
-		}
+			found = true;
+		} 
+
 	}
+
+try {
+	if(found){
+		res.status(200).json({message: "User logged in succesfully", token: token});
+	} else {
+		res.status(401).json("Username or/and password dit not match.");
+	}
+} catch (error) {
+	console.log(error)
+	return
+}
+
 
 });
 
