@@ -25,11 +25,15 @@ router.post('/login/', async (req, res) => {
 				'secret',
 				{ expiresIn: '1h' }
 			);
+
+			console.log(username + ' logged in');
+			res.status(200);
+			res.send(token);
+		} else {
+			res.status(401);
 		}
 	}
-	console.log(username + ' logged in');
-	res.status(200);
-	res.send(token);
+
 });
 
 module.exports = router;

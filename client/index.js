@@ -76,7 +76,7 @@ const run = async () => {
 					return
 				} else {
 					console.log(chalk.green('logged in!'));
-					//return body;
+					return body;
 				}
 			})
 			
@@ -93,7 +93,7 @@ const run = async () => {
 					)
 				);
 			});*/
-
+/*
 		//console.log(token);
 		var ggdVisit = await axios({
 			method: 'GET',
@@ -112,7 +112,7 @@ const run = async () => {
 			headers: { 'X-Access-Token': token },
 		}).then(function (response) {
 			console.log(response.status);
-		});
+		});*/
 	} catch (err) {
 		if (err) {
 			switch (err.status) {
