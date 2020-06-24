@@ -34,13 +34,11 @@ router.post('/researcher/alert', async (req, res) => {
 		res.status(412).json('Empty userId');
 	}
 	if (!alerts.includes(userId)) {
-        alerts.push(userId);
-        res.status(200).json('Addes user ' + userId);
+		alerts.push(userId);
+		res.status(200).json('Added user ' + userId);
 	} else {
 		res.status(412).json('User is already alerted');
 	}
-
-
 });
 
 
@@ -62,7 +60,8 @@ router.post('/user/contact/', async (req, res) => {
 	for (let index = 0; index < contacts.length; index++) {
 		if (contacts[index].userId == mainUserId) {
 			contacts[index].meeted.push(meetedUserId);
-			res.status(200).json();
+			res.status(200).json({ message: 'succes' });
+			console.log('succes');
 			console.log(contacts);
 		}
 	}
