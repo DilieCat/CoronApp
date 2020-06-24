@@ -5,7 +5,7 @@ const figlet = require('figlet');
 var inquirer = require('inquirer');
 const axios = require('axios');
 const alert = require('./lib/alert');
-const request = require('request')
+const request = require('request');
 const fs = require('fs');
 
 console.log(
@@ -58,69 +58,96 @@ function askContact() {
 	];
 	return inquirer.prompt(questions);
 }
-const run = async () => {
-	try {
-		const credentials = await askCoronAppCredentials();
 
-		const token = await request
-			.post({ca: fs.readFileSync('cert/ca-crt.pem'), url: 'https://localhost:3000/auth/login', json: {
+let privateToken;
+function logIn(credentials) {
+	request.post(
+		{
+			ca: fs.readFileSync('cert/ca-crt.pem'),
+			url: 'https://localhost:3000/auth/login',
+			json: {
 				username: credentials.username,
-				password: credentials.password
-			}}, (error, res, body) => {
-				if(error){
-					console.error(error)
-					console.log(
-						chalk.red(
-							"Couldn't log you in. Please provide correct credentials/token."
-						))
-					return
-				} else {
-					if(res.statusCode == 200){
-						console.log(body)
-						console.log(chalk.green('logged in!'));
-						return body;
-					} else {
-						console.log(
-							chalk.red(
-								"Couldn't log you in. Please provide correct credentials/token."
-							))
-					}
-				}
-			})
-			
-			/*
-			.then((res) => {
-				return res.data;
-				console.log(chalk.green('logged in!'));
-			})
-			.catch((error) => {
+				password: credentials.password,
+			},
+		},
+		(error, res, body) => {
+			if (error) {
 				console.error(error);
 				console.log(
 					chalk.red(
 						"Couldn't log you in. Please provide correct credentials/token."
 					)
 				);
-			});*/
-/*
-		//console.log(token);
-		var ggdVisit = await axios({
-			method: 'GET',
-			url: 'https://localhost:3000/main/user/alert',
+				return;
+			} else {
+				if (res.statusCode == 200) {
+					privateToken = body.token;
+					console.log(privateToken);
+					console.log(chalk.green('logged in!'));
+					getAlert(privateToken);
+				} else {
+					console.log(
+						chalk.red(
+							"Couldn't log you in. Please provide correct credentials/token."
+						)
+					);
+				}
+			}
+		}
+	);
+}
 
-			headers: { 'X-Access-Token': token },
-		});
-		console.log('Do i have to visit the GGD? ' + ggdVisit.data);
+function getAlert(privateToken) {
+	console.log(privateToken);
+	request.get(
+		{
+			ca: fs.readFileSync('cert/ca-crt.pem'),
+			url: 'https://localhost:3000/main/user/alert',
+			headers: { 'X-Access-Token': privateToken },
+		},
+		(error, res, body) => {
+			if (error) {
+				console.error(error);
+				console.log(chalk.red('Couldnt get the status of ggdAlert'));
+				return;
+			} else {
+				console.log('go to GGD: ' + body);
+				return body;
+			}
+		}
+	);
+}
+function postMeetedUser(meetedUserId) {
+	console.log(meetedUserId.meetedUserId);
+
+	request.post(
+		{
+			ca: fs.readFileSync('cert/ca-crt.pem'),
+			url: 'https://localhost:3000/main/user/contact',
+			headers: { 'X-Access-Token': privateToken },
+			json: {
+				meetedUserId: meetedUserId.meetedUserId,
+			},
+		},
+		(error, res, body) => {
+			if (error) {
+				console.error(error);
+				console.log(chalk.red('Couldnt post contact moment'));
+				return;
+			} else if (res.statusCode === 200) {
+				console.log('succesfully added contact moment');
+			}
+		}
+	);
+}
+
+const run = async () => {
+	try {
+		const credentials = await askCoronAppCredentials();
+		await logIn(credentials);
 
 		const meetedUserId = await askContact();
-		console.log(meetedUserId);
-		await axios({
-			method: 'POST',
-			url: 'http://localhost:3000/main/user/contact',
-			data: meetedUserId,
-			headers: { 'X-Access-Token': token },
-		}).then(function (response) {
-			console.log(response.status);
-		});*/
+		await postMeetedUser(meetedUserId);
 	} catch (err) {
 		if (err) {
 			switch (err.status) {
