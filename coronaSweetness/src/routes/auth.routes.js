@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 let accounts = [
 	{ userId: 1, username: 'A', password: 'test', userlevel: 1 },
 	{ userId: 2, username: 'B', password: 'test', userlevel: 1 },
+	{ userId: 3, username: 'GGD', password: 'test', userlevel: 2 },
 ];
 
 router.post('/login/', async (req, res) => {
@@ -24,7 +25,8 @@ router.post('/login/', async (req, res) => {
 					data: accounts[index].userId,
 				},
 				'secret',
-				{ expiresIn: '1h' }
+				{ expiresIn: '1h' },
+				{ userLevel: accounts[index].userlevel }
 			);
 
 			console.log(username + ' logged in');
@@ -33,18 +35,16 @@ router.post('/login/', async (req, res) => {
 
 	}
 
-try {
-	if(found){
-		res.status(200).json({message: "User logged in succesfully", token: token});
-	} else {
-		res.status(401).json("Username or/and password dit not match.");
+	try {
+		if(found){
+			res.status(200).json({message: "User logged in succesfully", token: token});
+		} else {
+			res.status(401).json("Username or/and password dit not match.");
+		}
+	} catch (error) {
+		console.log(error)
+		return
 	}
-} catch (error) {
-	console.log(error)
-	return
-}
-
-
 });
 
 module.exports = router;

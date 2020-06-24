@@ -43,12 +43,12 @@ router.post('/researcher/alert', async (req, res) => {
 
 });
 
-/*
+
 router.get('/contacts', async (req, res) => {
    // const contacts = [{userId: 1, meeted: [2]}, {userId: 2, meeted: [1]}]
     res.json(contacts)
 })
-*/
+
 
 //USER ROUTES
 
