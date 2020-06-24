@@ -43,11 +43,30 @@ router.post('/researcher/alert', async (req, res) => {
 	if (userId == null) {
 		res.status(412).json('Empty userId');
 	}
+
 	if (!alerts.includes(userId)) {
 		alerts.push(userId);
 		res.status(200).json('Added user ' + userId);
 	} else {
 		res.status(412).json('User is already alerted');
+	}
+});
+
+router.post('/researcher/auth', async (req, res) => {
+	const userId = req.body.userId;
+	const authCode = req.body.authCode;
+	if (userId == null) {
+		res.status(412).json('Empty userId');
+	}
+	for (let index = 0; index < accounts.length; index++) {
+		if (accounts[index].userId == userId) {
+			accounts[index].ggdAuthCode.push(authCode);
+			res.json(
+				'code: ' + accounts[index].ggdAuthCode + 'set on account: ' + userId
+			);
+		} else {
+			res.json('there is no code here');
+		}
 	}
 });
 
@@ -65,7 +84,7 @@ router.post('/user/contact/', async (req, res) => {
 	console.log(meetedUserId);
 	console.log('user ' + mainUserId + ' had contact with ' + meetedUserId);
 
-	for (let index = 0; index < contacts.accounts; index++) {
+	for (let index = 0; index < contacts.length; index++) {
 		if (contacts[index].userId == mainUserId) {
 			res.status(200).json({ message: 'succes' });
 			console.log('succes');
