@@ -5,7 +5,17 @@ const assert = require('assert');
 const router = express.Router();
 let mainUserId = '';
 
-//User A = 1, User B = 2
+let accounts = [
+	{
+		userId: 1,
+		username: 'A',
+		password: 'test',
+		userlevel: 1,
+		ggdAuthCode: 'Yeet',
+	},
+	{ userId: 2, username: 'B', password: 'test', userlevel: 1 },
+	{ userId: 3, username: 'GGD', password: 'test', userlevel: 2 },
+];
 
 let contacts = [
 	{ userId: 1, meeted: [2] },
@@ -41,12 +51,10 @@ router.post('/researcher/alert', async (req, res) => {
 	}
 });
 
-
 router.get('/contacts', async (req, res) => {
-   // const contacts = [{userId: 1, meeted: [2]}, {userId: 2, meeted: [1]}]
-    res.json(contacts)
-})
-
+	// const contacts = [{userId: 1, meeted: [2]}, {userId: 2, meeted: [1]}]
+	res.json(contacts);
+});
 
 //USER ROUTES
 
@@ -57,12 +65,10 @@ router.post('/user/contact/', async (req, res) => {
 	console.log(meetedUserId);
 	console.log('user ' + mainUserId + ' had contact with ' + meetedUserId);
 
-	for (let index = 0; index < contacts.length; index++) {
+	for (let index = 0; index < contacts.accounts; index++) {
 		if (contacts[index].userId == mainUserId) {
-			contacts[index].meeted.push(meetedUserId);
 			res.status(200).json({ message: 'succes' });
 			console.log('succes');
-			console.log(contacts);
 		}
 	}
 });
@@ -79,6 +85,16 @@ router.get('/user/alert', async (req, res) => {
 	}
 });
 
-//User login
-
+//get user ggdAuthCode
+router.get('/user/auth', async (req, res) => {
+	console.log('router auth aangeroepen');
+	for (let index = 0; index < accounts.length; index++) {
+		if (accounts[index].userId == mainUserId) {
+			console.log(accounts[index].ggdAuthCode);
+			res.json(accounts[index].ggdAuthCode);
+		} else {
+			res.json('there is no code here');
+		}
+	}
+});
 module.exports = router;
