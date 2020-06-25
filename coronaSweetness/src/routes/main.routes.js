@@ -54,7 +54,7 @@ router.post('/researcher/alert', async (req, res) => {
 //Get contacts moments from user.
 router.get('/researcher/contacts', async (req, res) => {
     checkIfResearcher(res, userLevel)
-    
+
     const requestedUserFirstname = req.body.requestedUserFirstname;
     const requestedUserLastname = req.body.requestedUserLastname;
 
@@ -78,6 +78,7 @@ router.get('/researcher/contacts', async (req, res) => {
             }
         }
     }
+    
     if(userList.length > 0){
         res.status(200).json(userList)
     } else {

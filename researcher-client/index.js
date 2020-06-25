@@ -7,6 +7,7 @@ const axios = require('axios');
 const alert = require('./lib/alert');
 const request = require('request');
 const fs = require('fs');
+const cryptoRandomString = require('crypto-random-string');
 let privateToken;
 
 console.log(
