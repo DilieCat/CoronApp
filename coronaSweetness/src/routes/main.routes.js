@@ -63,7 +63,7 @@ router.post('/researcher/alert', async (req, res) => {
 
 //Get contacts moments from user.
 router.get('/researcher/contacts', async (req, res) => {
-    checkIfResearcher(res, userLevel)
+	checkIfResearcher(res, userLevel);
 
 	const requestedUserFirstname = req.body.requestedUserFirstname;
 	const requestedUserLastname = req.body.requestedUserLastname;
@@ -152,6 +152,19 @@ router.get('/user/alert', async (req, res) => {
 			res.json(true);
 		} else {
 			res.json(false);
+		}
+	}
+});
+
+router.get('/user/auth', async (req, res) => {
+	console.log('routerUserAuth aangeroepen');
+	for (let index = 0; index < db.accounts.length; index++) {
+		//console.log(mainUserId + '\n');
+		if (db.accounts[index].userId == mainUserId) {
+			console.log('aight gevonden');
+			res.status(200).json(db.accounts[index].ggdAuthCode);
+		} else {
+			res.status(404).json('niet gevonden bro');
 		}
 	}
 });

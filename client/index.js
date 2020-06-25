@@ -60,7 +60,6 @@ function askContact() {
 	return inquirer.prompt(questions);
 }
 
-
 function logIn(credentials) {
 	request.post(
 		{
@@ -85,6 +84,7 @@ function logIn(credentials) {
 					privateToken = body.token;
 					console.log(chalk.green('logged in!'));
 					getAlert(privateToken);
+					console.log(getGgdCode());
 				} else {
 					console.log(
 						chalk.red(
@@ -112,6 +112,26 @@ function getAlert(privateToken) {
 				return;
 			} else {
 				console.log('go to GGD: ' + body);
+				return body;
+			}
+		}
+	);
+}
+
+function getGgdCode() {
+	request.get(
+		{
+			ca: fs.readFileSync('cert/ca-crt.pem'),
+			url: 'https://localhost:3000/main/user/auth',
+			headers: { 'X-Access-Token': privateToken },
+		},
+		(error, res, body) => {
+			if (error) {
+				console.error(error);
+				console.log(chalk.red('Couldnt get the status of ggdAuth'));
+				return;
+			} else {
+				console.log('authCode: ' + body);
 				return body;
 			}
 		}
@@ -146,8 +166,8 @@ const run = async () => {
 		const credentials = await askCoronAppCredentials();
 		await logIn(credentials);
 
-		const meetedUserId = await askContact();
-		await postMeetedUser(meetedUserId);
+		//const meetedUserId = await askContact();
+		//await postMeetedUser(meetedUserId);
 	} catch (err) {
 		if (err) {
 			switch (err.status) {
