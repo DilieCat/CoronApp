@@ -7,6 +7,7 @@ const axios = require('axios');
 const alert = require('./lib/alert');
 const request = require('request');
 const fs = require('fs');
+let privateToken;
 
 console.log(
 	chalk.yellow(figlet.textSync('CoronApp', { horizontalLayout: 'full' }))
@@ -59,7 +60,7 @@ function askContact() {
 	return inquirer.prompt(questions);
 }
 
-let privateToken;
+
 function logIn(credentials) {
 	request.post(
 		{
@@ -82,7 +83,6 @@ function logIn(credentials) {
 			} else {
 				if (res.statusCode == 200) {
 					privateToken = body.token;
-					console.log(privateToken);
 					console.log(chalk.green('logged in!'));
 					getAlert(privateToken);
 				} else {
