@@ -110,7 +110,6 @@ router.post('/researcher/auth', async (req, res) => {
 		//console.log(userId + ' ' + db.accounts[index].userId);
 		if (db.accounts[index].userId == userId) {
 			db.accounts[index].ggdAuthCode = authCode;
-			console.log(authCode);
 			res.status(200).json({
 				message:
 					'code: ' +
@@ -118,7 +117,6 @@ router.post('/researcher/auth', async (req, res) => {
 					'set on account: ' +
 					userId,
 			});
-			console.log(db.accounts[index]);
 		} else {
 			//res.json('there is no code here');
 		}
@@ -131,27 +129,22 @@ router.post('/researcher/auth', async (req, res) => {
 router.post('/user/contact/', async (req, res) => {
 	const userId = req.body.userId;
 	const meetedUserId = req.body.meetedUserId;
-	console.log(meetedUserId);
-	console.log('user ' + mainUserId + ' had contact with ' + meetedUserId);
 
 	for (let index = 0; index < db.contacts.length; index++) {
 		if (db.contacts[index].userId == mainUserId) {
 			db.contacts[index].meeted.push(meetedUserId);
 			res.status(200).json({ message: 'succes' });
-			console.log('succes');
-			console.log(db.contacts);
 		}
 	}
 });
 
 //Get user alert
 router.get('/user/alert', async (req, res) => {
-	console.log('routerlert aangeroepen');
 	for (let index = 0; index < db.alerts.length; index++) {
 		if (db.alerts[index] == mainUserId) {
-			res.json(true);
+			res.status(200).json(true);
 		} else {
-			res.json(false);
+			res.status(200).json(false);
 		}
 	}
 });

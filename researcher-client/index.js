@@ -9,7 +9,7 @@ const request = require('request');
 const fs = require('fs');
 const cryptoRandomString = require('crypto-random-string');
 let privateToken;
-const cryptoRandomString = require('crypto-random-string');
+
 
 console.log(
 	chalk.yellow(figlet.textSync('CoronApp', { horizontalLayout: 'full' }))
@@ -284,40 +284,6 @@ const run = async () => {
 				}
 			}
 		);
-
-		/*
-			.then((res) => {
-				return res.data;
-				console.log(chalk.green('logged in!'));
-			})
-			.catch((error) => {
-				console.error(error);
-				console.log(
-					chalk.red(
-						"Couldn't log you in. Please provide correct credentials/token."
-					)
-				);
-			});*/
-		/*
-		//console.log(token);
-		var ggdVisit = await axios({
-			method: 'GET',
-			url: 'https://localhost:3000/main/user/alert',
-
-			headers: { 'X-Access-Token': token },
-		});
-		console.log('Do i have to visit the GGD? ' + ggdVisit.data);
-
-		const meetedUserId = await askContact();
-		console.log(meetedUserId);
-		await axios({
-			method: 'POST',
-			url: 'http://localhost:3000/main/user/contact',
-			data: meetedUserId,
-			headers: { 'X-Access-Token': token },
-		}).then(function (response) {
-			console.log(response.status);
-		});*/
 	} catch (err) {
 		if (err) {
 			switch (err.status) {

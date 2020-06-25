@@ -7,7 +7,6 @@ let db = require('../db')
 
 
 router.post('/login/', async (req, res) => {
-	console.log(db)
 	const username = req.body.username;
 	const password = req.body.password;
 	let token;
@@ -47,7 +46,6 @@ router.post('/login/', async (req, res) => {
 });
 
 router.post('/loginResearcher/', async (req, res) => {
-	console.log(db)
 	const username = req.body.username;
 	const password = req.body.password;
 	let token;
@@ -70,7 +68,6 @@ router.post('/loginResearcher/', async (req, res) => {
 			);
 
 			console.log(username + ' logged in');
-			console.log(db.accounts[index].userlevel)
 			userLevel = db.accounts[index].userlevel
 			found = true;
 		} 
@@ -78,7 +75,6 @@ router.post('/loginResearcher/', async (req, res) => {
 	}
 
 	try {
-		console.log(userLevel)
 	if(userLevel > 1){
 		if(found){
 			res.status(200).json({message: "User logged in succesfully", token: token});
