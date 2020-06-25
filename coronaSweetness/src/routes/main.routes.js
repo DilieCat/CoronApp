@@ -110,7 +110,9 @@ router.get('/user/auth', async (req, res) => {
 	for (let index = 0; index < accounts.length; index++) {
 		if (accounts[index].userId == mainUserId) {
 			console.log(accounts[index].ggdAuthCode);
-			res.json(accounts[index].ggdAuthCode);
+
+			res.status(200).json(accounts[index].ggdAuthCode);
+			//accounts[index].ggdAuthCode.push('invalidCode');
 		} else {
 			res.json('there is no code here');
 		}

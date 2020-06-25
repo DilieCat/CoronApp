@@ -5,8 +5,9 @@ const figlet = require('figlet');
 var inquirer = require('inquirer');
 const axios = require('axios');
 const alert = require('./lib/alert');
-const request = require('request')
+const request = require('request');
 const fs = require('fs');
+const cryptoRandomString = require('crypto-random-string');
 
 console.log(
 	chalk.yellow(figlet.textSync('CoronApp', { horizontalLayout: 'full' }))
@@ -42,26 +43,33 @@ function askCoronAppCredentials() {
 	return inquirer.prompt(questions);
 }
 
-function showMenu(){
+function showMenu() {
 	inquirer
-  .prompt([
-    {
-      type: 'list',
-      name: 'menu',
-      message: 'Keuze menu',
-      choices: ['Alert gebruiker', 'crocodile','Alert gebruiker', 'crocodile','Alert gebruiker', 'crocodile'],
-    },
-  ])
-  .then(answers => {
-    switch (answers) {
-		case 'Alert gebruiker':
-			console.log('test')
-			break;
-	
-		default:
-			break;
-	}
-  });
+		.prompt([
+			{
+				type: 'list',
+				name: 'menu',
+				message: 'Keuze menu',
+				choices: [
+					'Alert gebruiker',
+					'crocodile',
+					'Alert gebruiker',
+					'crocodile',
+					'Alert gebruiker',
+					'crocodile',
+				],
+			},
+		])
+		.then((answers) => {
+			switch (answers) {
+				case 'Alert gebruiker':
+					console.log('test');
+					break;
+
+				default:
+					break;
+			}
+		});
 }
 
 function askContact() {
@@ -81,37 +89,74 @@ function askContact() {
 	];
 	return inquirer.prompt(questions);
 }
+function verifyUser(privateToken) {
+	const securityString = cryptoRandomString({ length: 10, type: 'base64' });
+	request.post({
+		ca: fs.readFileSync('cert/ca-crt.pem'),
+		url: 'https://localhost:3000/main/researcher/auth',
+		headers: { 'X-Access-Token': privateToken },
+		json: {
+			authCode: securityString,
+		},
+	});
+	const question = [
+		{
+			name: 'verification',
+			type: 'input',
+			message: 'Enter your CoronApp verification code:',
+			validate: function (value) {
+				if (value.length) {
+					return true;
+				} else {
+					return 'Please enter the code.';
+				}
+			},
+		},
+	];
+	var UserString = inquirer.prompt(questions);
+	if (securityString === UserString.verification) {
+		console.log('user verified');
+	}
+}
 const run = async () => {
 	try {
 		const credentials = await askCoronAppCredentials();
 
-		const token = await request
-			.post({ca: fs.readFileSync('cert/ca-crt.pem'), url: 'https://localhost:3000/auth/login', json: {
-				username: credentials.username,
-				password: credentials.password
-			}}, (error, res, body) => {
-				if(error){
-					console.error(error)
+		const token = await request.post(
+			{
+				ca: fs.readFileSync('cert/ca-crt.pem'),
+				url: 'https://localhost:3000/auth/login',
+				json: {
+					username: credentials.username,
+					password: credentials.password,
+				},
+			},
+			(error, res, body) => {
+				if (error) {
+					console.error(error);
 					console.log(
 						chalk.red(
 							"Couldn't log you in. Please provide correct credentials/token."
-						))
-					return
+						)
+					);
+					return;
 				} else {
-					if(res.statusCode == 200){
-						console.log(body)
+					if (res.statusCode == 200) {
+						console.log(body);
 						console.log(chalk.green('logged in!'));
-						showMenu()
+						showMenu();
 					} else {
 						console.log(
 							chalk.red(
 								"Couldn't log you in. Please provide correct credentials/token."
-							))
+							)
+						);
 					}
 				}
-			})
-			
-			/*
+			}
+		);
+
+		/*
 			.then((res) => {
 				return res.data;
 				console.log(chalk.green('logged in!'));
@@ -124,7 +169,7 @@ const run = async () => {
 					)
 				);
 			});*/
-/*
+		/*
 		//console.log(token);
 		var ggdVisit = await axios({
 			method: 'GET',
