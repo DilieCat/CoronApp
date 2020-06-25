@@ -8,6 +8,7 @@ const alert = require('./lib/alert');
 const request = require('request');
 const fs = require('fs');
 let privateToken;
+const cryptoRandomString = require('crypto-random-string');
 
 console.log(
 	chalk.yellow(figlet.textSync('CoronApp', { horizontalLayout: 'full' }))
@@ -205,7 +206,7 @@ async function verifyUser() {
 			ca: fs.readFileSync('cert/ca-crt.pem'),
 			url: 'https://localhost:3000/main/researcher/auth',
 			headers: { 'X-Access-Token': privateToken },
-			json: { UserId: UserString, authCode: securityString },
+			json: { userId: UserId, authCode: securityString },
 		});
 	}
 	const question = [

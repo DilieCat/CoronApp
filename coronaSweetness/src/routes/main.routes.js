@@ -3,12 +3,11 @@ var jwtDecode = require('jwt-decode');
 const jwt = require('jsonwebtoken');
 const assert = require('assert');
 const router = express.Router();
-let db = require('../db')
+let db = require('../db');
 let mainUserId = '';
 let userLevel = '';
 
 //User A = 1, User B = 2
-
 
 //Check if user is authenticated
 router.all('*', function (req, res, next) {
@@ -19,33 +18,44 @@ router.all('*', function (req, res, next) {
 
 	token = req.header('X-Access-Token') || '';
 	var decoded = jwt.verify(token, 'secret');
-    mainUserId = decoded.data;
-    userLevel = decoded.userLevel;
+	mainUserId = decoded.data;
+	userLevel = decoded.userLevel;
 	next();
 });
 
 //RESEARCHER ROUTES
 //
 router.post('/researcher/alert', async (req, res) => {
-    checkIfResearcher(res, userLevel)
+	checkIfResearcher(res, userLevel);
 
-    const requestedUserFirstname = req.body.requestedUserFirstname;
-    const requestedUserLastname = req.body.requestedUserLastname;
+	const requestedUserFirstname = req.body.requestedUserFirstname;
+	const requestedUserLastname = req.body.requestedUserLastname;
 
-    let requestedUser;
+	let requestedUser;
 
-    for (let index = 0; index < db.accounts.length; index++) {
-        if(db.accounts[index].firstname == requestedUserFirstname && db.accounts[index].lastname == requestedUserLastname){
-            requestedUser = db.accounts[index].userId
-        }    
-    }
+	for (let index = 0; index < db.accounts.length; index++) {
+		if (
+			db.accounts[index].firstname == requestedUserFirstname &&
+			db.accounts[index].lastname == requestedUserLastname
+		) {
+			requestedUser = db.accounts[index].userId;
+		}
+	}
 
 	if (requestedUser == null) {
 		res.status(412).json('No person found');
 	}
 	if (!db.alerts.includes(requestedUser)) {
 		db.alerts.push(requestedUser);
-		res.status(200).json('Alerted user ' + requestedUserFirstname + ' ' + requestedUserLastname + ' he/she will show up soon');
+		res
+			.status(200)
+			.json(
+				'Alerted user ' +
+					requestedUserFirstname +
+					' ' +
+					requestedUserLastname +
+					' he/she will show up soon'
+			);
 	} else {
 		res.status(412).json('User is already alerted');
 	}
@@ -53,40 +63,67 @@ router.post('/researcher/alert', async (req, res) => {
 
 //Get contacts moments from user.
 router.get('/researcher/contacts', async (req, res) => {
-    checkIfResearcher(res, userLevel)
-    
-    const requestedUserFirstname = req.body.requestedUserFirstname;
-    const requestedUserLastname = req.body.requestedUserLastname;
+	checkIfResearcher(res, userLevel);
 
-    let requestedUser;
-    let userList = [];
+	const requestedUserFirstname = req.body.requestedUserFirstname;
+	const requestedUserLastname = req.body.requestedUserLastname;
 
-    for (let index = 0; index < db.accounts.length; index++) {
-        if(db.accounts[index].firstname == requestedUserFirstname && db.accounts[index].lastname == requestedUserLastname){
-            requestedUser = db.accounts[index].userId
-        }    
-    }
+	let requestedUser;
+	let userList = [];
 
-    for (let index = 0; index < db.contacts.length; index++) {
-        if(db.contacts[index].userId == requestedUser){
-            for (let cindex = 0; cindex < db.contacts[index].meeted.length; cindex++) {
-                for (let uindex = 0; uindex < db.accounts.length; uindex++) {
-                    if(db.accounts[uindex].userId == db.contacts[index].meeted[cindex]){
-                        userList.push(db.accounts[uindex])
-                    }                    
-                }
-            }
-        }
-    }
-    if(userList.length > 0){
-        res.status(200).json(userList)
-    } else {
-        res.status(200).json({message: "No user or contact moments found."})
-    }
+	for (let index = 0; index < db.accounts.length; index++) {
+		if (
+			db.accounts[index].firstname == requestedUserFirstname &&
+			db.accounts[index].lastname == requestedUserLastname
+		) {
+			requestedUser = db.accounts[index].userId;
+		}
+	}
 
-})
+	for (let index = 0; index < db.contacts.length; index++) {
+		if (db.contacts[index].userId == requestedUser) {
+			for (
+				let cindex = 0;
+				cindex < db.contacts[index].meeted.length;
+				cindex++
+			) {
+				for (let uindex = 0; uindex < db.accounts.length; uindex++) {
+					if (db.accounts[uindex].userId == db.contacts[index].meeted[cindex]) {
+						userList.push(db.accounts[uindex]);
+					}
+				}
+			}
+		}
+	}
+	if (userList.length > 0) {
+		res.status(200).json(userList);
+	} else {
+		res.status(200).json({ message: 'No user or contact moments found.' });
+	}
+});
 
-
+router.post('/researcher/auth', async (req, res) => {
+	const userId = req.body.userId.userId;
+	const authCode = req.body.authCode;
+	//console.log(userId, authCode);
+	for (let index = 0; index < db.accounts.length; index++) {
+		//console.log(userId + ' ' + db.accounts[index].userId);
+		if (db.accounts[index].userId == userId) {
+			db.accounts[index].ggdAuthCode = authCode;
+			console.log(authCode);
+			res.status(200).json({
+				message:
+					'code: ' +
+					db.accounts[index].ggdAuthCode +
+					'set on account: ' +
+					userId,
+			});
+			console.log(db.accounts[index]);
+		} else {
+			//res.json('there is no code here');
+		}
+	}
+});
 
 //USER ROUTES
 
@@ -119,10 +156,10 @@ router.get('/user/alert', async (req, res) => {
 	}
 });
 
-function checkIfResearcher(res, user){
-    if(user != 2){
-        res.status(403).json({message: "User not authorized for this action"})
-    }
+function checkIfResearcher(res, user) {
+	if (user != 2) {
+		res.status(403).json({ message: 'User not authorized for this action' });
+	}
 }
 
 //User login
