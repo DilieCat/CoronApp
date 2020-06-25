@@ -5,12 +5,13 @@ const figlet = require('figlet');
 var inquirer = require('inquirer');
 const axios = require('axios');
 const alert = require('./lib/alert');
-const request = require('request')
+const request = require('request');
 const fs = require('fs');
+const cryptoRandomString = require('crypto-random-string');
 let privateToken;
 
 console.log(
-	chalk.yellow(figlet.textSync('CoronApp', { horizontalLayout: 'full' }))
+	chalk.yellow(figlet.textSync('GGDApp', { horizontalLayout: 'full' }))
 );
 
 function askCoronAppCredentials() {
@@ -42,6 +43,7 @@ function askCoronAppCredentials() {
 	];
 	return inquirer.prompt(questions);
 }
+
 
 async function getContacts() {
 	 const questions = [
@@ -169,6 +171,7 @@ function showMenu(){
 			break;
 	}
   });
+
 }
 
 function askContact() {
@@ -188,6 +191,56 @@ function askContact() {
 	];
 	return inquirer.prompt(questions);
 }
+async function verifyUser(privateToken) {
+	console.log('verifyUser aangeroepen!');
+	const securityString = cryptoRandomString({ length: 10, type: 'base64' });
+	console.log(securityString);
+	const id = [
+		{
+			name: 'userId',
+			type: 'input',
+			message: 'Enter the userId',
+			validate: function (value) {
+				if (value.length) {
+					return true;
+				} else {
+					return 'Please enter the code.';
+				}
+			},
+		},
+	];
+	var UserId = await inquirer.prompt(id);
+	if (UserId != null) {
+		console.log('POST request klaarmaken');
+		request.post({
+			ca: fs.readFileSync('cert/ca-crt.pem'),
+			url: 'https://localhost:3000/main/researcher/auth',
+			headers: { 'X-Access-Token': privateToken },
+			json: { UserId: UserString, authCode: securityString },
+		});
+	}
+	const question = [
+		{
+			name: 'verification',
+			type: 'input',
+			message: 'Enter your CoronApp verification code:',
+			validate: function (value) {
+				if (value.length) {
+					return true;
+				} else {
+					return 'Please enter the code.';
+				}
+			},
+		},
+	];
+	var UserString = await inquirer.prompt(question);
+
+	if (securityString === UserString.verification) {
+		console.log('user verified');
+	} else {
+		console.log('fail.');
+	}
+}
 const run = async () => {
 	try {
 		const credentials = await askCoronAppCredentials();
@@ -202,14 +255,17 @@ const run = async () => {
 					console.log(
 						chalk.red(
 							"Couldn't log you in. Please provide correct credentials/token."
-						))
-					return
+						)
+					);
+					return;
 				} else {
+
 					if(res.statusCode == 200){
 						console.log(body)
 						privateToken = body.token;
 						console.log(chalk.green('logged in!'));
-						showMenu()
+						//showMenu();
+						verifyUser(privateToken);
 					} else {
 						console.log(
 							chalk.red(
@@ -217,9 +273,10 @@ const run = async () => {
 							))
 					}
 				}
-			})
-			
-			/*
+			}
+		);
+
+		/*
 			.then((res) => {
 				return res.data;
 				console.log(chalk.green('logged in!'));
@@ -232,7 +289,7 @@ const run = async () => {
 					)
 				);
 			});*/
-/*
+		/*
 		//console.log(token);
 		var ggdVisit = await axios({
 			method: 'GET',

@@ -9,11 +9,41 @@ const request = require('request');
 const fs = require('fs');
 let privateToken;
 
-console.log(
-	chalk.yellow(figlet.textSync('CoronApp', { horizontalLayout: 'full' }))
-);
+function corona() {
+	console.log(
+		chalk.yellow(figlet.textSync('CoronApp', { horizontalLayout: 'full' }))
+	);
+}
+function showMenu() {
+	inquirer
+		.prompt([
+			{
+				type: 'list',
+				name: 'menu',
+				message: 'Keuze menu',
+				choices: ['yeet', 'add contact moment', 'exit'],
+			},
+		])
+		.then((answers) => {
+			switch (answers['menu']) {
+				case 'yeet':
+					console.log('yeet in de case');
 
-function askCoronAppCredentials() {
+					getAlert(privateToken);
+					console.log('\r\n');
+					corona();
+					showMenu();
+					break;
+				case 'add contact moment':
+					postMeetedUser();
+					showMenu();
+					break;
+				case 'exit':
+					break;
+			}
+		});
+}
+async function askCoronAppCredentials() {
 	const questions = [
 		{
 			name: 'username',
@@ -83,8 +113,9 @@ function logIn(credentials) {
 			} else {
 				if (res.statusCode == 200) {
 					privateToken = body.token;
-					console.log(chalk.green('logged in!'));
+					console.log(chalk.green('\nlogged in!\n'));
 					getAlert(privateToken);
+					getAuthCode(privateToken);
 				} else {
 					console.log(
 						chalk.red(
@@ -98,7 +129,7 @@ function logIn(credentials) {
 }
 
 function getAlert(privateToken) {
-	console.log(privateToken);
+	//console.log(privateToken);
 	request.get(
 		{
 			ca: fs.readFileSync('cert/ca-crt.pem'),
@@ -110,23 +141,62 @@ function getAlert(privateToken) {
 				console.error(error);
 				console.log(chalk.red('Couldnt get the status of ggdAlert'));
 				return;
-			} else {
-				console.log('go to GGD: ' + body);
+			} else if (body === 'true') {
+				console.log(chalk.red('go to GGD: ' + body + '\n'));
+
+				return body;
+			} else if (body === 'false') {
+				console.log(chalk.green('go to GGD: ' + body + '\n'));
 				return body;
 			}
 		}
 	);
 }
-function postMeetedUser(meetedUserId) {
-	console.log(meetedUserId.meetedUserId);
+function getAuthCode(privateToken) {
+	//console.log(privateToken);
+	request.get(
+		{
+			ca: fs.readFileSync('cert/ca-crt.pem'),
+			url: 'https://localhost:3000/main/user/auth',
+			headers: { 'X-Access-Token': privateToken },
+		},
+		(error, res, body) => {
+			if (error) {
+				console.error(error);
+				console.log(chalk.red('Couldnt get the auth code'));
+				return;
+			} else {
+				console.log(chalk.yellow('GGDAuthCode: ' + body + '\n'));
 
+				return body;
+			}
+		}
+	);
+}
+function postMeetedUser() {
+	const questions = [
+		{
+			name: 'kuthoer',
+			type: 'input',
+			message: 'who did you contact?',
+			validate: function (value) {
+				if (value.length) {
+					return true;
+				} else {
+					return 'Please enter a UserId';
+				}
+			},
+		},
+	];
+	kuthoer = inquirer.prompt(questions);
+	console.log(kuthoer);
 	request.post(
 		{
 			ca: fs.readFileSync('cert/ca-crt.pem'),
 			url: 'https://localhost:3000/main/user/contact',
 			headers: { 'X-Access-Token': privateToken },
 			json: {
-				meetedUserId: meetedUserId.meetedUserId,
+				meetedUserId: kuthoer,
 			},
 		},
 		(error, res, body) => {
@@ -143,11 +213,12 @@ function postMeetedUser(meetedUserId) {
 
 const run = async () => {
 	try {
-		const credentials = await askCoronAppCredentials();
-		await logIn(credentials);
+		corona();
 
-		const meetedUserId = await askContact();
-		await postMeetedUser(meetedUserId);
+		const credentials = await askCoronAppCredentials();
+		logIn(credentials);
+
+		//showMenu();
 	} catch (err) {
 		if (err) {
 			switch (err.status) {

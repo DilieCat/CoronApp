@@ -7,8 +7,6 @@ let db = require('../db')
 let mainUserId = '';
 let userLevel = '';
 
-//User A = 1, User B = 2
-
 
 //Check if user is authenticated
 router.all('*', function (req, res, next) {
@@ -43,11 +41,31 @@ router.post('/researcher/alert', async (req, res) => {
 	if (requestedUser == null) {
 		res.status(412).json('No person found');
 	}
+
 	if (!db.alerts.includes(requestedUser)) {
 		db.alerts.push(requestedUser);
 		res.status(200).json('Alerted user ' + requestedUserFirstname + ' ' + requestedUserLastname + ' he/she will show up soon');
 	} else {
 		res.status(412).json('User is already alerted');
+	}
+});
+
+
+router.post('/researcher/auth', async (req, res) => {
+	const userId = req.body.userId;
+	const authCode = req.body.authCode;
+
+	for (let index = 0; index < accounts.length; index++) {
+		if (accounts[index].userId == userId) {
+			accounts[index].ggdAuthCode.push(authCode);
+			console.log(authCode);
+			res.json({
+				message:
+					'code: ' + accounts[index].ggdAuthCode + 'set on account: ' + userId,
+			});
+		} else {
+			res.json('there is no code here');
+		}
 	}
 });
 
@@ -87,6 +105,11 @@ router.get('/researcher/contacts', async (req, res) => {
 })
 
 
+router.get('/contacts', async (req, res) => {
+	// const contacts = [{userId: 1, meeted: [2]}, {userId: 2, meeted: [1]}]
+	res.json(contacts);
+});
+
 
 //USER ROUTES
 
@@ -97,12 +120,14 @@ router.post('/user/contact/', async (req, res) => {
 	console.log(meetedUserId);
 	console.log('user ' + mainUserId + ' had contact with ' + meetedUserId);
 
+
 	for (let index = 0; index < db.contacts.length; index++) {
 		if (db.contacts[index].userId == mainUserId) {
 			db.contacts[index].meeted.push(meetedUserId);
 			res.status(200).json({ message: 'succes' });
 			console.log('succes');
 			console.log(db.contacts);
+
 		}
 	}
 });
@@ -119,12 +144,27 @@ router.get('/user/alert', async (req, res) => {
 	}
 });
 
+//get user ggdAuthCode
+router.get('/user/auth', async (req, res) => {
+	console.log('router auth aangeroepen');
+	for (let index = 0; index < accounts.length; index++) {
+		if (accounts[index].userId == mainUserId) {
+			console.log(accounts[index].ggdAuthCode);
+//User login
+
+
+			res.status(200).json(accounts[index].ggdAuthCode);
+			//accounts[index].ggdAuthCode.push('invalidCode');
+		} else {
+			res.json('there is no code here');
+		}
+	}
+});
+
 function checkIfResearcher(res, user){
     if(user != 2){
         res.status(403).json({message: "User not authorized for this action"})
     }
 }
-
-//User login
 
 module.exports = router;

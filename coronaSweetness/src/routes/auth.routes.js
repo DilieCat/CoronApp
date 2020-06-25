@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 let db = require('../db')
 
 
-
 router.post('/login/', async (req, res) => {
 	console.log(db)
 	const username = req.body.username;
@@ -30,19 +29,20 @@ router.post('/login/', async (req, res) => {
 
 			console.log(username + ' logged in');
 			found = true;
-		} 
-
+		}
 	}
 
 	try {
-		if(found){
-			res.status(200).json({message: "User logged in succesfully", token: token});
+		if (found) {
+			res
+				.status(200)
+				.json({ message: 'User logged in succesfully', token: token });
 		} else {
-			res.status(401).json("Username or/and password dit not match.");
+			res.status(401).json('Username or/and password dit not match.');
 		}
 	} catch (error) {
-		console.log(error)
-		return
+		console.log(error);
+		return;
 	}
 });
 
