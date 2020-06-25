@@ -10,7 +10,7 @@ const fs = require('fs');
 const cryptoRandomString = require('crypto-random-string');
 
 console.log(
-	chalk.yellow(figlet.textSync('CoronApp', { horizontalLayout: 'full' }))
+	chalk.yellow(figlet.textSync('GGDApp', { horizontalLayout: 'full' }))
 );
 
 function askCoronAppCredentials() {
@@ -53,7 +53,7 @@ function showMenu() {
 				choices: [
 					'Alert gebruiker',
 					'crocodile',
-					'Alert gebruiker',
+					'verifieër gebruiker',
 					'crocodile',
 					'Alert gebruiker',
 					'crocodile',
@@ -65,6 +65,8 @@ function showMenu() {
 				case 'Alert gebruiker':
 					console.log('test');
 					break;
+				case 'verifieër gebruiker':
+					verifyUser(privateToken);
 
 				default:
 					break;
@@ -89,16 +91,34 @@ function askContact() {
 	];
 	return inquirer.prompt(questions);
 }
-function verifyUser(privateToken) {
+async function verifyUser(privateToken) {
+	console.log('verifyUser aangeroepen!');
 	const securityString = cryptoRandomString({ length: 10, type: 'base64' });
-	request.post({
-		ca: fs.readFileSync('cert/ca-crt.pem'),
-		url: 'https://localhost:3000/main/researcher/auth',
-		headers: { 'X-Access-Token': privateToken },
-		json: {
-			authCode: securityString,
+	console.log(securityString);
+	const id = [
+		{
+			name: 'userId',
+			type: 'input',
+			message: 'Enter the userId',
+			validate: function (value) {
+				if (value.length) {
+					return true;
+				} else {
+					return 'Please enter the code.';
+				}
+			},
 		},
-	});
+	];
+	var UserId = await inquirer.prompt(id);
+	if (UserId != null) {
+		console.log('POST request klaarmaken');
+		request.post({
+			ca: fs.readFileSync('cert/ca-crt.pem'),
+			url: 'https://localhost:3000/main/researcher/auth',
+			headers: { 'X-Access-Token': privateToken },
+			json: { UserId: UserString, authCode: securityString },
+		});
+	}
 	const question = [
 		{
 			name: 'verification',
@@ -113,9 +133,12 @@ function verifyUser(privateToken) {
 			},
 		},
 	];
-	var UserString = inquirer.prompt(questions);
+	var UserString = await inquirer.prompt(question);
+
 	if (securityString === UserString.verification) {
 		console.log('user verified');
+	} else {
+		console.log('fail.');
 	}
 }
 const run = async () => {
@@ -143,8 +166,10 @@ const run = async () => {
 				} else {
 					if (res.statusCode == 200) {
 						console.log(body);
+						privateToken = body.token;
 						console.log(chalk.green('logged in!'));
-						showMenu();
+						//showMenu();
+						verifyUser(privateToken);
 					} else {
 						console.log(
 							chalk.red(
