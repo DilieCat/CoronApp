@@ -63,7 +63,7 @@ router.post('/researcher/alert', async (req, res) => {
 
 //Get contacts moments from user.
 router.get('/researcher/contacts', async (req, res) => {
-    checkIfResearcher(res, userLevel)
+	checkIfResearcher(res, userLevel);
 
 	const requestedUserFirstname = req.body.requestedUserFirstname;
 	const requestedUserLastname = req.body.requestedUserLastname;
@@ -99,6 +99,21 @@ router.get('/researcher/contacts', async (req, res) => {
 		res.status(200).json(userList);
 	} else {
 		res.status(200).json({ message: 'No user or contact moments found.' });
+	}
+});
+
+router.get('/researcher/userinfo', async (req, res) => {
+	checkIfResearcher(res, userLevel);
+
+	const requestedUserId = req.body.requestedUserId;
+
+	for (let index = 0; index < db.accounts.length; index++) {
+		if (db.accounts[index].userId == requestedUserId) {
+			requestedUser = db.accounts[index];
+			res.status(200).json({
+				requestedUser,
+			});
+		}
 	}
 });
 

@@ -10,7 +10,6 @@ const fs = require('fs');
 const cryptoRandomString = require('crypto-random-string');
 let privateToken;
 
-
 console.log(
 	chalk.yellow(figlet.textSync('CoronApp', { horizontalLayout: 'full' }))
 );
@@ -96,6 +95,43 @@ async function getContacts() {
 	);
 }
 
+async function getUserData() {
+	const getId = [
+		{
+			name: 'userId',
+			type: 'input',
+			message: 'Enter the persons userId:',
+			validate: function (value) {
+				if (value.length) {
+					return true;
+				} else {
+					return 'Please enter the persons id.';
+				}
+			},
+		},
+	];
+	let answers = await inquirer.prompt(getId);
+	request.get(
+		{
+			ca: fs.readFileSync('cert/ca-crt.pem'),
+			url: 'https://localhost:3000/main/researcher/userinfo',
+			headers: { 'X-Access-Token': privateToken },
+			json: {
+				requestedUserId: answers.userId,
+			},
+		},
+		(error, res, body) => {
+			if (error) {
+				console.error(error);
+				console.log(chalk.red('Couldnt get contacts from the person'));
+				return;
+			} else if (res.statusCode === 200) {
+				console.log(body);
+			}
+		}
+	);
+}
+
 async function alertUser() {
 	const questions = [
 		{
@@ -158,7 +194,7 @@ function showMenu() {
 					'Alert gebruiker om te melden bij de GGD',
 					'Vraag contact momenten op',
 					'Verifieër gebruiker',
-					'crocodile',
+					'gebruikersinfo opvragen',
 					'Alert gebruiker',
 					'crocodile',
 				],
@@ -176,6 +212,10 @@ function showMenu() {
 				case 'Verifieër gebruiker':
 					verifyUser();
 					break;
+				case 'gebruikersinfo opvragen':
+					getUserData();
+					break;
+
 				default:
 					break;
 			}
