@@ -8,6 +8,7 @@ const alert = require('./lib/alert');
 const request = require('request');
 const fs = require('fs');
 const cryptoRandomString = require('crypto-random-string');
+let privateToken;
 
 console.log(
 	chalk.yellow(figlet.textSync('GGDApp', { horizontalLayout: 'full' }))
@@ -43,35 +44,134 @@ function askCoronAppCredentials() {
 	return inquirer.prompt(questions);
 }
 
-function showMenu() {
-	inquirer
-		.prompt([
-			{
-				type: 'list',
-				name: 'menu',
-				message: 'Keuze menu',
-				choices: [
-					'Alert gebruiker',
-					'crocodile',
-					'verifieër gebruiker',
-					'crocodile',
-					'Alert gebruiker',
-					'crocodile',
-				],
-			},
-		])
-		.then((answers) => {
-			switch (answers) {
-				case 'Alert gebruiker':
-					console.log('test');
-					break;
-				case 'verifieër gebruiker':
-					verifyUser(privateToken);
 
-				default:
-					break;
+async function getContacts() {
+	 const questions = [
+		{
+			name: 'firstname',
+			type: 'input',
+			message: 'Enter the persons first name:',
+			validate: function (value) {
+				if (value.length) {
+					return true;
+				} else {
+					return 'Please enter the persons first name.';
+				}
+			},
+		},
+		{
+			name: 'lastname',
+			type: 'input',
+			message: 'Enter the persons lastname:',
+			validate: function (value) {
+				if (value.length) {
+					return true;
+				} else {
+					return 'Please enter the persons lastname.';
+				}
+			},
+		},
+	];
+	let answers = await inquirer.prompt(questions);
+
+	request.get(
+		{
+			ca: fs.readFileSync('cert/ca-crt.pem'),
+			url: 'https://localhost:3000/main/researcher/contacts',
+			headers: { 'X-Access-Token': privateToken },
+			json: {
+				requestedUserFirstname: answers.firstname,
+				requestedUserLastname: answers.lastname
+			},
+		},
+		(error, res, body) => {
+			if (error) {
+				console.error(error);
+				console.log(chalk.red('Couldnt get contacts from the person'));
+				return;
+			} else if (res.statusCode === 200) {
+				console.log(body);
 			}
-		});
+		}
+	);
+}
+
+async function alertUser() {
+	const questions = [
+	   {
+		   name: 'firstname',
+		   type: 'input',
+		   message: 'Enter the persons first name:',
+		   validate: function (value) {
+			   if (value.length) {
+				   return true;
+			   } else {
+				   return 'Please enter the persons first name.';
+			   }
+		   },
+	   },
+	   {
+		   name: 'lastname',
+		   type: 'input',
+		   message: 'Enter the persons lastname:',
+		   validate: function (value) {
+			   if (value.length) {
+				   return true;
+			   } else {
+				   return 'Please enter the persons lastname.';
+			   }
+		   },
+	   },
+   ];
+   let answers = await inquirer.prompt(questions);
+   
+   request.post(
+	   {
+		   ca: fs.readFileSync('cert/ca-crt.pem'),
+		   url: 'https://localhost:3000/main/researcher/alert',
+		   headers: { 'X-Access-Token': privateToken },
+		   json: {
+			   requestedUserFirstname: answers.firstname,
+			   requestedUserLastname: answers.lastname
+		   },
+	   },
+	   (error, res, body) => {
+		   if (error) {
+			   console.error(error);
+			   console.log(chalk.red('Not authorized or the server crashed.'));
+			   return;
+		   } else {
+			   console.log(body);
+		   }
+	   }
+   );
+}
+
+function showMenu(){
+	inquirer
+  .prompt([
+    {
+      type: 'list',
+      name: 'menu',
+      message: 'Keuze menu',
+      choices: ['Alert gebruiker om te melden bij de GGD', 'Vraag contact momenten op','Alert gebruiker', 'crocodile','Alert gebruiker', 'crocodile'],
+    },
+  ])
+  .then(answers => {
+    switch (answers['menu']) {
+		case 'Alert gebruiker om te melden bij de GGD':
+			alertUser()
+			break;
+
+		case 'Vraag contact momenten op':
+			getContacts()
+			break;
+	
+		default:
+			break;
+	}
+  });
+
 }
 
 function askContact() {
@@ -145,18 +245,13 @@ const run = async () => {
 	try {
 		const credentials = await askCoronAppCredentials();
 
-		const token = await request.post(
-			{
-				ca: fs.readFileSync('cert/ca-crt.pem'),
-				url: 'https://localhost:3000/auth/login',
-				json: {
-					username: credentials.username,
-					password: credentials.password,
-				},
-			},
-			(error, res, body) => {
-				if (error) {
-					console.error(error);
+		const token = await request
+			.post({ca: fs.readFileSync('cert/ca-crt.pem'), url: 'https://localhost:3000/auth/loginResearcher', json: {
+				username: credentials.username,
+				password: credentials.password
+			}}, (error, res, body) => {
+				if(error){
+					console.error(error)
 					console.log(
 						chalk.red(
 							"Couldn't log you in. Please provide correct credentials/token."
@@ -164,8 +259,9 @@ const run = async () => {
 					);
 					return;
 				} else {
-					if (res.statusCode == 200) {
-						console.log(body);
+
+					if(res.statusCode == 200){
+						console.log(body)
 						privateToken = body.token;
 						console.log(chalk.green('logged in!'));
 						//showMenu();
@@ -173,9 +269,8 @@ const run = async () => {
 					} else {
 						console.log(
 							chalk.red(
-								"Couldn't log you in. Please provide correct credentials/token."
-							)
-						);
+								body
+							))
 					}
 				}
 			}

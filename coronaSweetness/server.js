@@ -43,8 +43,17 @@ app.use(bodyParser.json());
 app.use('/main', mainRoutes);
 app.use('/auth', authRoutes);
 
+app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error', {
+        message: err.message,
+        error: {}
+    });
+});
+
 http.createServer(app).listen(300)
 https.createServer(credentials, app).listen(3000)
+
 
 
 module.exports = app;
