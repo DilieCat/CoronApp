@@ -111,7 +111,10 @@ router.get('/researcher/userinfo', async (req, res) => {
 		if (db.accounts[index].userId == requestedUserId) {
 			requestedUser = db.accounts[index];
 			res.status(200).json({
-				requestedUser,
+				userId: requestedUser.userId,
+				firstname: requestedUser.firstname,
+				lastname: requestedUser.lastname,
+				username: requestedUser.username
 			});
 		}
 	}
