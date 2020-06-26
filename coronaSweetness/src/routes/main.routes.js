@@ -164,6 +164,19 @@ router.get('/user/alert', async (req, res) => {
 	}
 });
 
+router.get('/user/auth', async (req, res) => {
+	console.log('routerUserAuth aangeroepen');
+	for (let index = 0; index < db.accounts.length; index++) {
+		//console.log(mainUserId + '\n');
+		if (db.accounts[index].userId == mainUserId) {
+			console.log('aight gevonden');
+			res.status(200).json(db.accounts[index].ggdAuthCode);
+		} else {
+			res.status(404).json('niet gevonden bro');
+		}
+	}
+});
+
 function checkIfResearcher(res, user) {
 	if (user != 2) {
 		res.status(403).json({ message: 'User not authorized for this action' });

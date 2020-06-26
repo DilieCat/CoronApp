@@ -86,6 +86,7 @@ function askContact() {
 
 
 async function logIn(credentials) {
+
 	request.post(
 		{
 			ca: fs.readFileSync('cert/ca-crt.pem'),
@@ -147,8 +148,31 @@ async function getAlert() {
 		}
 	);
 }
+
+
+function getGgdCode() {
+	request.get(
+		{
+			ca: fs.readFileSync('cert/ca-crt.pem'),
+			url: 'https://localhost:3000/main/user/auth',
+			headers: { 'X-Access-Token': privateToken },
+		},
+		(error, res, body) => {
+			if (error) {
+				console.error(error);
+				console.log(chalk.red('Couldnt get the status of ggdAuth'));
+				return;
+			} else {
+				console.log('authCode: ' + body);
+				return body;
+			}
+		}
+	);
+}
+
 async function postMeetedUser() {
 	meetedUserId = await askContact()
+
 
 	request.post(
 		{
@@ -174,6 +198,7 @@ async function postMeetedUser() {
 const run = async () => {
 	try {
 		const credentials = await askCoronAppCredentials();
+
 
 		const token = await request.post(
 			{
