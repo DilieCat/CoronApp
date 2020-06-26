@@ -118,6 +118,7 @@ router.get('/researcher/userinfo', async (req, res) => {
 });
 
 router.post('/researcher/auth', async (req, res) => {
+	checkIfResearcher(res, userLevel);
 	const userId = req.body.userId.userId;
 	const authCode = req.body.authCode;
 	//console.log(userId, authCode);

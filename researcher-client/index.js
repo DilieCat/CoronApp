@@ -161,6 +161,7 @@ async function alertUser() {
 	];
 	let answers = await inquirer.prompt(questions);
 
+
 	request.post(
 		{
 			ca: fs.readFileSync('cert/ca-crt.pem'),
@@ -181,6 +182,7 @@ async function alertUser() {
 			}
 		}
 	);
+	
 }
 
 async function showMenu() {
@@ -194,42 +196,39 @@ async function showMenu() {
 					'Alert gebruiker om te melden bij de GGD',
 					'Vraag contact momenten op',
 					'Verifieër gebruiker',
-					'gebruikersinfo opvragen',
-					'Alert gebruiker',
-					'crocodile',
+					'Gebruikers info opvragen',
 				],
 			},
 		])
-		.then((answers) => {
+		.then(async (answers) => {
 			switch (answers['menu']) {
 				case 'Alert gebruiker om te melden bij de GGD':
-					alertUser();
+					await alertUser();
 					break;
-
 				case 'Vraag contact momenten op':
-					getContacts();
+					await getContacts();
 					break;
 				case 'Verifieër gebruiker':
-					verifyUser();
+					await verifyUser();
 					break;
-				case 'gebruikersinfo opvragen':
-					getUserData();
+				case 'Gebruikers info opvragen':
+					await getUserData();
 					break;
 
 				default:
 					break;
 			}
-
-		}).then(() => {
 			console.log('\n')
-			showMenu()
+			setTimeout(function(){
+				showMenu() 
+			}, 20);
+
 		});
 }
 
 async function verifyUser() {
-	console.log('verifyUser aangeroepen!');
 	const securityString = cryptoRandomString({ length: 10, type: 'base64' });
-	console.log(securityString);
+	
 	const id = [
 		{
 			name: 'userId',

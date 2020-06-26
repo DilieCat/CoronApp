@@ -26,14 +26,18 @@ async function showMenu() {
 				],
 			},
 		])
-		.then((answers) => {
+		.then(async (answers) => {
 			switch (answers['menu']) {
 				case 'Contact gehad met persoon':
-					postMeetedUser();
+					await postMeetedUser();
 					break;
 				default:
 					break;
 			}
+			console.log('\n')
+			setTimeout(function(){
+				showMenu() 
+			}, 20);
 		});
 }
 
@@ -165,7 +169,7 @@ async function postMeetedUser() {
 				console.log(chalk.red('Couldnt post contact moment'));
 				return;
 			} else if (res.statusCode === 200) {
-				console.log('succesfully added contact moment');
+				console.log('Succesfully added contact moment with user.');
 			}
 		}
 	);

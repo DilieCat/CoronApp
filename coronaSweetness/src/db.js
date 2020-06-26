@@ -37,7 +37,7 @@ let db = {
 	],
 	contacts: [
 		{ userId: 1, meeted: [2] },
-		{ userId: 2, meeted: [] },
+		{ userId: 2, meeted: [1] },
 	],
 	alerts: [1],
 };
