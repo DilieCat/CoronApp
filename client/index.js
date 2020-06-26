@@ -144,8 +144,6 @@ async function getAlert() {
 					);
 					showMenu();
 				}
-				//console.log('go to GGD: ' + body);
-				//return body;
 			}
 		}
 	);
@@ -170,8 +168,7 @@ async function postMeetedUser() {
 		}
 	);
 }
-function getAuthCode(privateToken) {
-	//console.log(privateToken);
+function getAuthCode() {
 	request.get(
 		{
 			ca: fs.readFileSync('cert/ca-crt.pem'),
@@ -184,8 +181,12 @@ function getAuthCode(privateToken) {
 				console.log(chalk.red('Couldnt get the auth code'));
 				return;
 			} else {
-				console.log(chalk.yellow('GGDAuthCode: ' + body + '\n'));
-
+				console.log(body)
+				if(res.statusCode == 404){
+					console.log(chalk.red(body + ' \n'));
+				} else {
+					console.log(chalk.yellow('Your verification code is: ' + body + '\n'));
+				}
 				return body;
 			}
 		}

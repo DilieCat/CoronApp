@@ -169,12 +169,15 @@ router.get('/user/alert', async (req, res) => {
 });
 
 router.get('/user/auth', async (req, res) => {
-	for (let index = 0; index < db.alerts.length; index++) {
-		if (db.accounts[index].userId == mainUserId) {
+	for (let index = 0; index < db.accounts.length; index++) {
+		if(db.accounts[index].userId == mainUserId){
 			var code = db.accounts[index].ggdAuthCode;
-			res.status(200).json(code);
-		} else {
-			res.status(200).json(false);
+			if(code != ""){
+				res.status(200).json(code);
+				db.accounts[index].ggdAuthCode = ''
+			} else {
+				res.status(404).json({message: "You don't have any auth code, ask for the GGD researcher to resend it!"});
+			}
 		}
 	}
 });

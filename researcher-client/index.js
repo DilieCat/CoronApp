@@ -228,7 +228,7 @@ async function showMenu() {
 
 async function verifyUser() {
 	const securityString = cryptoRandomString({ length: 10, type: 'base64' });
-	
+
 	const id = [
 		{
 			name: 'userId',
@@ -270,9 +270,13 @@ async function verifyUser() {
 	var UserString = await inquirer.prompt(question);
 
 	if (securityString === UserString.verification) {
-		console.log('user verified');
+		console.log(chalk.green('Verification code matches, u can trust the user!'));
 	} else {
-		console.log('fail.');
+		console.log(
+			chalk.red(
+				"The verification code doesn't match, can u trust the user?"
+			)
+		);
 	}
 }
 
