@@ -168,6 +168,17 @@ router.get('/user/alert', async (req, res) => {
 	}
 });
 
+router.get('/user/auth', async (req, res) => {
+	for (let index = 0; index < db.alerts.length; index++) {
+		if (db.accounts[index].userId == mainUserId) {
+			var code = db.accounts[index].ggdAuthCode;
+			res.status(200).json(code);
+		} else {
+			res.status(200).json(false);
+		}
+	}
+});
+
 function checkIfResearcher(res, user) {
 	if (user != 2) {
 		res.status(403).json({ message: 'User not authorized for this action' });

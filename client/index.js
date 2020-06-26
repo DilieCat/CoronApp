@@ -20,10 +20,7 @@ async function showMenu() {
 				type: 'list',
 				name: 'menu',
 				message: 'Keuze menu',
-				choices: [
-					'Verificatie code opvragen.',
-					'Contact gehad met persoon',
-				],
+				choices: ['Verificatie code opvragen.', 'Contact gehad met persoon'],
 			},
 		])
 		.then(async (answers) => {
@@ -31,12 +28,15 @@ async function showMenu() {
 				case 'Contact gehad met persoon':
 					await postMeetedUser();
 					break;
+				case 'Verificatie code opvragen.':
+					await getAuthCode();
+					break;
 				default:
 					break;
 			}
-			console.log('\n')
-			setTimeout(function(){
-				showMenu() 
+			console.log('\n');
+			setTimeout(function () {
+				showMenu();
 			}, 20);
 		});
 }
@@ -88,7 +88,6 @@ function askContact() {
 	return inquirer.prompt(questions);
 }
 
-
 async function logIn(credentials) {
 	request.post(
 		{
@@ -137,10 +136,10 @@ async function getAlert() {
 				console.log(chalk.red('Couldnt get the status of ggdAlert \n'));
 				return;
 			} else {
-				if (body){
+				if (body) {
 					console.log(
 						chalk.green(
-							"A GGD Researcher requested you to go to the GGD building. \n"
+							'A GGD Researcher requested you to go to the GGD building. \n'
 						)
 					);
 					showMenu();
@@ -152,16 +151,13 @@ async function getAlert() {
 	);
 }
 async function postMeetedUser() {
-	meetedUserId = await askContact()
+	meetedUserId = await askContact();
 
-	request.post(
+	request.get(
 		{
 			ca: fs.readFileSync('cert/ca-crt.pem'),
-			url: 'https://localhost:3000/main/user/contact',
+			url: 'https://localhost:3000/main/user/auth',
 			headers: { 'X-Access-Token': privateToken },
-			json: {
-				meetedUserId: meetedUserId.meetedUserId,
-			},
 		},
 		(error, res, body) => {
 			if (error) {
@@ -170,6 +166,27 @@ async function postMeetedUser() {
 				return;
 			} else if (res.statusCode === 200) {
 				console.log('Succesfully added contact moment with user.');
+			}
+		}
+	);
+}
+function getAuthCode(privateToken) {
+	//console.log(privateToken);
+	request.get(
+		{
+			ca: fs.readFileSync('cert/ca-crt.pem'),
+			url: 'https://localhost:3000/main/user/auth',
+			headers: { 'X-Access-Token': privateToken },
+		},
+		(error, res, body) => {
+			if (error) {
+				console.error(error);
+				console.log(chalk.red('Couldnt get the auth code'));
+				return;
+			} else {
+				console.log(chalk.yellow('GGDAuthCode: ' + body + '\n'));
+
+				return body;
 			}
 		}
 	);
