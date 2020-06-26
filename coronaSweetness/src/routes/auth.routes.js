@@ -56,7 +56,7 @@ router.post('/loginResearcher/', async (req, res) => {
 	for (let index = 0; index < db.accounts.length; index++) {
 		if (
 			db.accounts[index].username == username &&
-			db.accounts[index].password == password
+			bcrypt.compareSync(req.body.password, db.accounts[index].password)
 		) {
 			token = jwt.sign(
 				{

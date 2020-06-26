@@ -177,13 +177,13 @@ async function alertUser() {
 				console.log(chalk.red('Not authorized or the server crashed.'));
 				return;
 			} else {
-				console.log(body);
+				console.log(body + '\n');
 			}
 		}
 	);
 }
 
-function showMenu() {
+async function showMenu() {
 	inquirer
 		.prompt([
 			{
@@ -219,6 +219,10 @@ function showMenu() {
 				default:
 					break;
 			}
+
+		}).then(() => {
+			console.log('\n')
+			showMenu()
 		});
 }
 
